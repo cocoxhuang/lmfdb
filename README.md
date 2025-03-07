@@ -1,7 +1,7 @@
 ![LMFDB][logo]
 ==============
 
-This is the code for the 
+This is code for the 
 [L-functions and modular forms database website](https://www.lmfdb.org/).
 
 Wiki
