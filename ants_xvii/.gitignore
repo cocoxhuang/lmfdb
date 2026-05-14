@@ -1,2 +1,4 @@
 CLAUDE_NOTES.md
 *.log
+infinite_bsd/check_prop_lmfdb.py
+infinite_bsd/improvement.py

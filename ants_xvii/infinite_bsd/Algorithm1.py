@@ -93,11 +93,27 @@ def filter_CONDITION_p_isogeny(df: pd.DataFrame) -> pd.DataFrame:
         CONDITION = True
         a_3, a_5, a_7 = curve['a3'], curve['a5'], curve['a7']
         non_isogeny_primes = set(bad_primes) and set([3,5,7])
-        non_isogeny_primes.update(ordinary_357([a_3, a_5, a_7]))
+        # non_isogeny_primes.update(ordinary_357([a_3, a_5, a_7]))
     
         E = EllipticCurve(ainvs)
         isogeny_primes = [phi.degree() for phi in E.isogenies_prime_degree()]
         CONDITION = (all(p not in isogeny_primes for p in non_isogeny_primes))
+
+        if CONDITION:
+            data_idx.append(index)
+
+    return df.loc[data_idx]
+
+def filter_CONDITION_no_3_isogeny(df: pd.DataFrame) -> pd.DataFrame:
+    '''CONDITION: no rational 3 isogenies'''
+    data_idx = []
+    for index,curve in df.iterrows():
+        ainvs = curve['ainvs']
+
+        # CONDITION: 3 is not a isogeny prime
+        E = EllipticCurve(ainvs)
+        isogeny_primes = [phi.degree() for phi in E.isogenies_prime_degree()]
+        CONDITION = 3 not in isogeny_primes
 
         if CONDITION:
             data_idx.append(index)
@@ -251,7 +267,17 @@ def bsd_infinite_twists(cond_upper_bound:int = None, cond_lower_bound:int = None
 
     # CONDITION: a3 in {-2, -1, 0, 1, 2}
     classdata_df = get_a3_a5_a7(df)
-    lmfdb_iso_labels_a3_cond = classdata_df[classdata_df['a3'].isin({-2, -1, 0, 1, 2})]
+    lmfdb_iso_labels_a3_0_cond = classdata_df[classdata_df['a3'].isin({-2, -1, 0, 1, 2})]
+    # df = pd.merge(df, lmfdb_iso_labels_a3_cond, on='lmfdb_iso', how='inner')
+
+    # CONDITION: a3 in {-3, 3} and there is no rational 3-isogeny as an alternative to the above a3 condition
+    # Reference: On the Iwasawa main conjectures for modular forms at non-ordinary primes (2018)
+    lmfdb_iso_labels_alt_a3_cond = classdata_df[classdata_df['a3'].isin({-3, 3})]
+    lmfdb_iso_labels_alt_a3_cond = pd.merge(lmfdb_iso_labels_alt_a3_cond, df[['lmfdb_iso', 'ainvs']], on='lmfdb_iso', how='inner')
+    lmfdb_iso_labels_alt_a3_cond = filter_CONDITION_no_3_isogeny(lmfdb_iso_labels_alt_a3_cond)
+    lmfdb_iso_labels_alt_a3_cond = lmfdb_iso_labels_alt_a3_cond[['lmfdb_iso']]
+
+    lmfdb_iso_labels_a3_cond = pd.merge(lmfdb_iso_labels_a3_0_cond, lmfdb_iso_labels_alt_a3_cond, on='lmfdb_iso', how='outer')
     df = pd.merge(df, lmfdb_iso_labels_a3_cond, on='lmfdb_iso', how='inner')
 
     # CONDITION: no rational odd prime isogenies
