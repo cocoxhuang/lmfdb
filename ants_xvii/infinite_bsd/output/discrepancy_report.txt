@@ -1,0 +1,87 @@
+Diagnostic report: Zhai-list discrepancy
+================================================================================
+Curves: ['62a1', '66b1', '105a1', '141c1']
+
+=== 62a1  (LMFDB 62.a4)  ainvs=[1, -1, 1, -1, 1]  N=62=2·31  rank=0 ===
+
+  [PASS] N squarefree, not prime          semistable=True, num_bad_primes=2
+  [PASS] No p-isogeny for p in A          A=[], prime-degree isogenies=[2], a3=0
+  [PASS] Ramification                    p=2→q=31,ord_q(Δ)=1; p=31→q=2,ord_q(Δ)=4
+  [PASS] Optimal                          optimality=1
+  [PASS] rank(E)=0                        rank=0
+  [INFO] 2-torsion branch                  torsion_structure=[4], dim_F2 E(Q)[2]=1 → CLZ20 branch
+  [FAIL] ord_2(L^(alg)) = −1 (CLZ20)     actual ord_2=-2, L^(alg)=1/4 ≈ 0.25
+  [FAIL] E'(Q)[2] ≅ Z/2Z (CLZ20)         E'(Q)_tors invariants=(2, 2), order=4
+  [PASS] Sha(E')[2] = 0 (CLZ20)           sha_an(E')=1 (ord_2=0), descent verdict=True
+  [FAIL] no square in {f'(x_0),−f'(x_0),−Δ_E} (CLZ20)  f'(x_0)=5184 (square), -f'(x_0)=-5184 (not square), -Δ_E/16=67480252416 (not square)
+  [FAIL] S non-empty (CLZ20, probabilistic) no q ≡ 1 mod 4 with q ∤ N and ord_2(#E(F_q))=1 found up to 10000
+  [PASS] check_BSD_at_2(E)                sha_an(E)=1 (ord_2=0), descent verdict=True
+
+  ⇒ 62a1 is REJECTED by Algorithm1 because:
+        • CLZ20: ord_2(L^(alg))=-2, expected −1
+        • E'(Q)[2] ≠ Z/2Z (E'(Q)_tors invariants=(2, 2))
+        • square check failed: ["f'(x_0)"] is/are squares in Q
+        • S empty up to 10000 (probabilistic check confirms deterministic)
+
+=== 66b1  (LMFDB 66.b4)  ainvs=[1, 1, 1, -2, -1]  N=66=2·3·11  rank=0 ===
+
+  [PASS] N squarefree, not prime          semistable=True, num_bad_primes=3
+  [PASS] No p-isogeny for p in A          A=[3], prime-degree isogenies=[2], a3=-1
+  [PASS] Ramification                    p=2→q=3,ord_q(Δ)=1; p=3→q=2,ord_q(Δ)=4; p=11→q=2,ord_q(Δ)=4
+  [PASS] Optimal                          optimality=1
+  [PASS] rank(E)=0                        rank=0
+  [INFO] 2-torsion branch                  torsion_structure=[4], dim_F2 E(Q)[2]=1 → CLZ20 branch
+  [FAIL] ord_2(L^(alg)) = −1 (CLZ20)     actual ord_2=-2, L^(alg)=1/4 ≈ 0.25
+  [FAIL] E'(Q)[2] ≅ Z/2Z (CLZ20)         E'(Q)_tors invariants=(2, 2), order=4
+  [PASS] Sha(E')[2] = 0 (CLZ20)           sha_an(E')=1 (ord_2=0), descent verdict=True
+  [FAIL] no square in {f'(x_0),−f'(x_0),−Δ_E} (CLZ20)  f'(x_0)=5184 (square), -f'(x_0)=-5184 (not square), -Δ_E/16=-71833817088 (not square)
+  [FAIL] S non-empty (CLZ20, probabilistic) no q ≡ 1 mod 4 with q ∤ N and ord_2(#E(F_q))=1 found up to 10000
+  [PASS] check_BSD_at_2(E)                sha_an(E)=1 (ord_2=0), descent verdict=True
+
+  ⇒ 66b1 is REJECTED by Algorithm1 because:
+        • CLZ20: ord_2(L^(alg))=-2, expected −1
+        • E'(Q)[2] ≠ Z/2Z (E'(Q)_tors invariants=(2, 2))
+        • square check failed: ["f'(x_0)"] is/are squares in Q
+        • S empty up to 10000 (probabilistic check confirms deterministic)
+
+=== 105a1  (LMFDB 105.a3)  ainvs=[1, 0, 1, -3, 1]  N=105=3·5·7  rank=0 ===
+
+  [PASS] N squarefree, not prime          semistable=True, num_bad_primes=3
+  [PASS] No p-isogeny for p in A          A=[3, 5, 7], prime-degree isogenies=[2], a3=1
+  [PASS] Ramification                    p=3→q=5,ord_q(Δ)=1; p=5→q=3,ord_q(Δ)=1; p=7→q=3,ord_q(Δ)=1
+  [PASS] Optimal                          optimality=1
+  [PASS] rank(E)=0                        rank=0
+  [INFO] 2-torsion branch                  torsion_structure=[2], dim_F2 E(Q)[2]=1 → CLZ20 branch
+  [FAIL] ord_2(L^(alg)) = −1 (CLZ20)     actual ord_2=-2, L^(alg)=1/4 ≈ 0.25
+  [FAIL] E'(Q)[2] ≅ Z/2Z (CLZ20)         E'(Q)_tors invariants=(2, 2), order=4
+  [PASS] Sha(E')[2] = 0 (CLZ20)           sha_an(E')=1 (ord_2=0), descent verdict=True
+  [FAIL] no square in {f'(x_0),−f'(x_0),−Δ_E} (CLZ20)  f'(x_0)=1296 (square), -f'(x_0)=-1296 (not square), -Δ_E/16=-14285134080 (not square)
+  [FAIL] S non-empty (CLZ20, probabilistic) no q ≡ 1 mod 4 with q ∤ N and ord_2(#E(F_q))=1 found up to 10000
+  [PASS] check_BSD_at_2(E)                sha_an(E)=1 (ord_2=0), descent verdict=True
+
+  ⇒ 105a1 is REJECTED by Algorithm1 because:
+        • CLZ20: ord_2(L^(alg))=-2, expected −1
+        • E'(Q)[2] ≠ Z/2Z (E'(Q)_tors invariants=(2, 2))
+        • square check failed: ["f'(x_0)"] is/are squares in Q
+        • S empty up to 10000 (probabilistic check confirms deterministic)
+
+=== 141c1  (LMFDB 141.c4)  ainvs=[1, 0, 0, -2, 3]  N=141=3·47  rank=0 ===
+
+  [PASS] N squarefree, not prime          semistable=True, num_bad_primes=2
+  [PASS] No p-isogeny for p in A          A=[3], prime-degree isogenies=[2], a3=1
+  [PASS] Ramification                    p=3→q=47,ord_q(Δ)=1; p=47→q=3,ord_q(Δ)=4
+  [PASS] Optimal                          optimality=1
+  [PASS] rank(E)=0                        rank=0
+  [INFO] 2-torsion branch                  torsion_structure=[4], dim_F2 E(Q)[2]=1 → CLZ20 branch
+  [FAIL] ord_2(L^(alg)) = −1 (CLZ20)     actual ord_2=-2, L^(alg)=1/4 ≈ 0.25
+  [FAIL] E'(Q)[2] ≅ Z/2Z (CLZ20)         E'(Q)_tors invariants=(2, 2), order=4
+  [PASS] Sha(E')[2] = 0 (CLZ20)           sha_an(E')=1 (ord_2=0), descent verdict=True
+  [FAIL] no square in {f'(x_0),−f'(x_0),−Δ_E} (CLZ20)  f'(x_0)=11664 (square), -f'(x_0)=-11664 (not square), -Δ_E/16=517938147072 (not square)
+  [FAIL] S non-empty (CLZ20, probabilistic) no q ≡ 1 mod 4 with q ∤ N and ord_2(#E(F_q))=1 found up to 10000
+  [PASS] check_BSD_at_2(E)                sha_an(E)=1 (ord_2=0), descent verdict=True
+
+  ⇒ 141c1 is REJECTED by Algorithm1 because:
+        • CLZ20: ord_2(L^(alg))=-2, expected −1
+        • E'(Q)[2] ≠ Z/2Z (E'(Q)_tors invariants=(2, 2))
+        • square check failed: ["f'(x_0)"] is/are squares in Q
+        • S empty up to 10000 (probabilistic check confirms deterministic)

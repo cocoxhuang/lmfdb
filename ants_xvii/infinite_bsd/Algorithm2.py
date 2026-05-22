@@ -74,6 +74,33 @@ def p_inert_in_F(p: int, F: NumberField) -> bool:
     return I.is_prime()
 
 
+def disc_valuation_condition(primes_dividing_M: list,
+                             conductor_primes: list,
+                             disc_valuations: dict) -> bool:
+    """
+    Test the ramification-style condition
+
+        for every p | M, there exists q | N, q != p,
+        such that p does not divide ord_q(Delta_E).
+
+    Mirrors `is_ramified` in Algorithm1.py but with the outer loop ranging
+    over primes of the twist M rather than primes of the base conductor N.
+
+    Args:
+        primes_dividing_M: primes p with p | M.
+        conductor_primes: primes q with q | N (conductor of E).
+        disc_valuations: dict mapping each q in conductor_primes
+            to ord_q(Delta_E).
+
+    Returns:
+        True iff the condition holds.
+    """
+    return all(
+        any(disc_valuations[q] % p != 0 for q in conductor_primes if q != p)
+        for p in primes_dividing_M
+    )
+
+
 # =============================================================================
 # ADMISSIBLE TWIST FUNCTIONS
 # =============================================================================
@@ -104,6 +131,10 @@ def get_admissible_twists_CLZ(E: EllipticCurve, B: int = 150) -> list:
     # Precompute a_p values for efficiency
     a_p_dict = {p: E.ap(p) for p in prime_range(B)}
 
+    # Precompute ord_q(Delta_E) at each bad prime q (used by the
+    # disc-valuation ramification condition below)
+    disc_valuations = {q: E.discriminant().valuation(q) for q in conductor_primes}
+
     admissible_twists = []
 
     for M in range(1, B + 1):
@@ -117,6 +148,11 @@ def get_admissible_twists_CLZ(E: EllipticCurve, B: int = 150) -> list:
             continue
 
         primes_dividing_M = ZZ(M).prime_divisors()
+
+        # Ramification condition: for every p | M, there exists q | N, q != p,
+        # such that p does not divide ord_q(Delta_E).
+        if not disc_valuation_condition(primes_dividing_M, conductor_primes, disc_valuations):
+            continue
 
         # Condition (b): a_p not divisible by p for all p | M
         if not all(a_p_dict[p] % p != 0 for p in primes_dividing_M):
@@ -166,6 +202,10 @@ def get_admissible_twists_Zhai(E: EllipticCurve, B: int = 150) -> list:
     # Precompute a_p values for efficiency
     a_p_dict = {p: E.ap(p) for p in prime_range(B)}
 
+    # Precompute ord_q(Delta_E) at each bad prime q (used by the
+    # disc-valuation ramification condition below)
+    disc_valuations = {q: E.discriminant().valuation(q) for q in conductor_primes}
+
     admissible_twists = []
 
     # Precompute the 2-division field (only need to do this once per curve)
@@ -189,6 +229,11 @@ def get_admissible_twists_Zhai(E: EllipticCurve, B: int = 150) -> list:
             continue
 
         primes_dividing_M = ZZ(M).prime_divisors()
+
+        # Ramification condition: for every p | M, there exists q | N, q != p,
+        # such that p does not divide ord_q(Delta_E).
+        if not disc_valuation_condition(primes_dividing_M, conductor_primes, disc_valuations):
+            continue
 
         # Condition (b): a_p not divisible by p for all p | M
         if not all(a_p_dict[p] % p != 0 for p in primes_dividing_M):
@@ -237,15 +282,36 @@ def main():
     with open(input_file, 'r') as file:
         labels = [line.strip() for line in file.readlines()]
 
+    # Algorithm1 writes metadata, a blank line, then a "cremona_label,source,lmfdb_label"
+    # column header, then data. Accept only lines that look like a data row: at
+    # least 3 comma-separated parts where the second part is a known source tag.
+    KNOWN_SOURCES = {'CLZ20', 'Zha16_no_2_tors'}
+    rows = []
+    for label_line in labels:
+        parts = [p.strip() for p in label_line.split(',')]
+        if len(parts) < 3 or parts[1] not in KNOWN_SOURCES:
+            continue
+        rows.append((parts[0], parts[1], parts[2]))  # (cremona, source, lmfdb)
+
+    # Bulk-fetch ainvs in chunks instead of one ecq.lookup per curve.
+    # For ~40k curves this turns ~40k DB round-trips into ~40 batched ones.
+    all_labels = [r[2] for r in rows]
+    print(f"Bulk-fetching ainvs for {len(all_labels)} curves from LMFDB...")
+    ainvs_by_label = {}
+    BATCH = 1000
+    for start in range(0, len(all_labels), BATCH):
+        chunk = all_labels[start:start + BATCH]
+        for r in ecq.search({'lmfdb_label': {'$in': chunk}},
+                            projection=['lmfdb_label', 'ainvs']):
+            ainvs_by_label[r['lmfdb_label']] = r['ainvs']
+    print(f"  retrieved ainvs for {len(ainvs_by_label)} curves")
+
     results = {}
-
-    # Skip header lines (first 5 lines contain metadata)
-    for label_line in labels[5:]:
-        parts = label_line.split(', ')
-        cremona_label, source, lmfdb_label = parts[0], parts[1], parts[2]
-
-        # Get curve from LMFDB
-        ainvs = ecq.lookup(lmfdb_label, projection='ainvs')
+    for cremona_label, source, lmfdb_label in rows:
+        ainvs = ainvs_by_label.get(lmfdb_label)
+        if ainvs is None:
+            print(f"  WARNING: ainvs not found for {lmfdb_label}; skipping")
+            continue
         E = EllipticCurve(ainvs)
 
         # Compute admissible twists based on source paper
