@@ -97,14 +97,9 @@ def diagnose_curve(clabel, row, a3, bsd_row, out):
     if not ok:
         failures.append("N not squarefree or N prime")
 
-    # 2. Isogeny condition at A
-    A = set()
-    if 3 in bad_primes or abs(a3) == 3:
-        A.add(3)
-    if 5 in bad_primes:
-        A.add(5)
-    if 7 in bad_primes:
-        A.add(7)
+    # 2. Prime conditions at 3, 5, 7
+    # 2a. no rational p-isogeny for p in {3, 5, 7}
+    A = {3, 5, 7}
     isog_primes = {p for p in isogeny_degrees if Integer(p).is_prime()}
     overlap = A & isog_primes
     ok = not overlap
@@ -112,6 +107,12 @@ def diagnose_curve(clabel, row, a3, bsd_row, out):
               f"A={sorted(A)}, prime-degree isogenies={sorted(isog_primes)}, a3={a3}")
     if not ok:
         failures.append(f"rational p-isogeny exists for p ∈ A ∩ isog_primes = {sorted(overlap)}")
+
+    # 2b. a_3(E) != ±3
+    ok = abs(a3) != 3
+    emit(out, f"  [{status(ok)}] a_3(E) ≠ ±3                      a3={a3}")
+    if not ok:
+        failures.append(f"a_3(E) = {a3} ∈ {{+3, −3}}")
 
     # 3. Ramification
     ok = is_ramified(bad_primes, minimal_disc)

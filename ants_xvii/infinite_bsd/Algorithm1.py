@@ -90,23 +90,18 @@ def merge_mwbsd(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 def filter_CONDITION_p_isogeny(df: pd.DataFrame) -> pd.DataFrame:
-    '''CONDITION: for every p in A, E admits no rational p-isogeny, where
-        A := {3 if 3 | N or |a3| = 3} \\cup {5 if 5 | N} \\cup {7 if 7 | N}.
-    N is the conductor (equivalently, p | N iff p in bad_primes).'''
+    '''CONDITION: for every p in {3, 5, 7}, E admits no rational p-isogeny.'''
+    A = {3, 5, 7}
     data_idx = []
     for index, curve in df.iterrows():
-        bad_primes = set(curve['bad_primes'])
-        A = set()
-        if 3 in bad_primes or abs(curve['a3']) == 3:
-            A.add(3)
-        if 5 in bad_primes:
-            A.add(5)
-        if 7 in bad_primes:
-            A.add(7)
         isogeny_primes = [p for p in curve['isogeny_degrees'] if Integer(p).is_prime()]
         if all(p not in isogeny_primes for p in A):
             data_idx.append(index)
     return df.loc[data_idx]
+
+def filter_CONDITION_a3(df: pd.DataFrame) -> pd.DataFrame:
+    '''CONDITION: a_3(E) != +3 and a_3(E) != -3.'''
+    return df[(df['a3'] != 3) & (df['a3'] != -3)]
 
 def filter_CONDITION_ramification(df: pd.DataFrame) -> pd.DataFrame:
     '''CONDITION: ramification at any bad primes'''
@@ -401,11 +396,14 @@ def bsd_infinite_twists(cond_upper_bound:int = None, cond_lower_bound:int = None
     df = pd.DataFrame(list(ecq_payload))
     assert df['lmfdb_iso'].nunique() == len(df), "Values in the 'lmfdb_iso' column are not unique!"
 
-    # pull a3 from ec_classdata; it gates whether 3 enters the isogeny-check set A
+    # pull a3 (= a_p at p=3) from ec_classdata
     df = merge_a3(df)
 
     # CONDITION: no rational p-isogeny for p in A (see filter_CONDITION_p_isogeny)
     df = filter_CONDITION_p_isogeny(df)
+
+    # CONDITION: a_3(E) != +/- 3
+    df = filter_CONDITION_a3(df)
 
     # CONDITION: ramification at ANY bad primes
     df = filter_CONDITION_ramification(df)

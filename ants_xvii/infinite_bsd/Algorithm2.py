@@ -74,33 +74,6 @@ def p_inert_in_F(p: int, F: NumberField) -> bool:
     return I.is_prime()
 
 
-def disc_valuation_condition(primes_dividing_M: list,
-                             conductor_primes: list,
-                             disc_valuations: dict) -> bool:
-    """
-    Test the ramification-style condition
-
-        for every p | M, there exists q | N, q != p,
-        such that p does not divide ord_q(Delta_E).
-
-    Mirrors `is_ramified` in Algorithm1.py but with the outer loop ranging
-    over primes of the twist M rather than primes of the base conductor N.
-
-    Args:
-        primes_dividing_M: primes p with p | M.
-        conductor_primes: primes q with q | N (conductor of E).
-        disc_valuations: dict mapping each q in conductor_primes
-            to ord_q(Delta_E).
-
-    Returns:
-        True iff the condition holds.
-    """
-    return all(
-        any(disc_valuations[q] % p != 0 for q in conductor_primes if q != p)
-        for p in primes_dividing_M
-    )
-
-
 # =============================================================================
 # ADMISSIBLE TWIST FUNCTIONS
 # =============================================================================
@@ -113,7 +86,7 @@ def get_admissible_twists_CLZ(E: EllipticCurve, B: int = 150) -> list:
     the quadratic twist E_M satisfies the conditions of [CLZ20, Theorem 1.5].
 
     Conditions on M:
-        (a) M is squarefree and gcd(M, N) = 1 where N is the conductor
+        (a) M is squarefree and gcd(M, 3N) = 1 where N is the conductor
         (b) a_p(E) is not divisible by p for all primes p | M
         (c) p ≡ 1 (mod 4) and ord_2(a_p) = 1 for all primes p | M
         (d) M ≡ 1 (mod 8) and (disc(M)/q) = 1 for all odd primes q | N
@@ -131,10 +104,6 @@ def get_admissible_twists_CLZ(E: EllipticCurve, B: int = 150) -> list:
     # Precompute a_p values for efficiency
     a_p_dict = {p: E.ap(p) for p in prime_range(B)}
 
-    # Precompute ord_q(Delta_E) at each bad prime q (used by the
-    # disc-valuation ramification condition below)
-    disc_valuations = {q: E.discriminant().valuation(q) for q in conductor_primes}
-
     admissible_twists = []
 
     for M in range(1, B + 1):
@@ -143,16 +112,11 @@ def get_admissible_twists_CLZ(E: EllipticCurve, B: int = 150) -> list:
         if not ZZ(M).is_squarefree():
             continue
 
-        # Condition (a): gcd(M, conductor) = 1
-        if gcd(M, conductor) != 1:
+        # Condition (a): gcd(M, 3*conductor) = 1
+        if gcd(M, 3 * conductor) != 1:
             continue
 
         primes_dividing_M = ZZ(M).prime_divisors()
-
-        # Ramification condition: for every p | M, there exists q | N, q != p,
-        # such that p does not divide ord_q(Delta_E).
-        if not disc_valuation_condition(primes_dividing_M, conductor_primes, disc_valuations):
-            continue
 
         # Condition (b): a_p not divisible by p for all p | M
         if not all(a_p_dict[p] % p != 0 for p in primes_dividing_M):
@@ -181,7 +145,7 @@ def get_admissible_twists_Zhai(E: EllipticCurve, B: int = 150) -> list:
     the quadratic twist E_M satisfies the conditions of [Zha16, Theorems 1.1-1.9].
 
     Conditions on M:
-        (a) M is squarefree and gcd(M, N) = 1 where N is the conductor
+        (a) M is squarefree and gcd(M, 3N) = 1 where N is the conductor
         (b) a_p(E) is not divisible by p for all primes p | M
         (c) M ≡ 1 (mod 4)
         (d) All primes p | M are inert in Q(E[2]) (the 2-division field)
@@ -202,10 +166,6 @@ def get_admissible_twists_Zhai(E: EllipticCurve, B: int = 150) -> list:
     # Precompute a_p values for efficiency
     a_p_dict = {p: E.ap(p) for p in prime_range(B)}
 
-    # Precompute ord_q(Delta_E) at each bad prime q (used by the
-    # disc-valuation ramification condition below)
-    disc_valuations = {q: E.discriminant().valuation(q) for q in conductor_primes}
-
     admissible_twists = []
 
     # Precompute the 2-division field (only need to do this once per curve)
@@ -224,16 +184,11 @@ def get_admissible_twists_Zhai(E: EllipticCurve, B: int = 150) -> list:
         if not ZZ(M).is_squarefree():
             continue
 
-        # Condition (a): gcd(M, conductor) = 1
-        if gcd(M, conductor) != 1:
+        # Condition (a): gcd(M, 3*conductor) = 1
+        if gcd(M, 3 * conductor) != 1:
             continue
 
         primes_dividing_M = ZZ(M).prime_divisors()
-
-        # Ramification condition: for every p | M, there exists q | N, q != p,
-        # such that p does not divide ord_q(Delta_E).
-        if not disc_valuation_condition(primes_dividing_M, conductor_primes, disc_valuations):
-            continue
 
         # Condition (b): a_p not divisible by p for all p | M
         if not all(a_p_dict[p] % p != 0 for p in primes_dividing_M):
